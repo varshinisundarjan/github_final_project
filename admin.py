@@ -1,36 +1,39 @@
+```python
 from django.contrib import admin
-from .models import Course, Lesson, Question, Choice, Submission, Enrollment, User
+from .models import Course, Lesson, Instructor, Enrollment, Question, Choice, Submission
 
-# Inline class for Choice
+# Inline class to add choices within a question
 class ChoiceInline(admin.TabularInline):
     model = Choice
     extra = 3
 
 
-# Inline class for Question
+# Inline class to add questions within a lesson
 class QuestionInline(admin.TabularInline):
     model = Question
     extra = 2
 
 
-# Admin configuration for Question
+# Question admin configuration
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [ChoiceInline]
     list_display = ('content', 'grade')
-    search_fields = ['content']
+    search_fields = ('content',)
 
 
-# Admin configuration for Lesson
+# Lesson admin configuration
 class LessonAdmin(admin.ModelAdmin):
     inlines = [QuestionInline]
     list_display = ('title', 'course')
-    search_fields = ['title']
+    search_fields = ('title',)
 
 
-# Registering models in admin panel
+# Register models in admin panel
 admin.site.register(Course)
 admin.site.register(Lesson, LessonAdmin)
+admin.site.register(Instructor)
+admin.site.register(Enrollment)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Choice)
 admin.site.register(Submission)
-admin.site.register(Enrollment)
+```
