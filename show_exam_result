@@ -1,50 +1,23 @@
-````python
+```python id="p3e4l8"
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from .models import Course, Question, Choice, Submission, Enrollment
+from .models import Course, Submission, Question
 
-
-# Function to handle exam submission
-def submit(request, course_id):
-
-    course = get_object_or_404(Course, pk=course_id)
-    enrollment = Enrollment.objects.first()  # example enrollment
-
-    submission = Submission.objects.create(enrollment=enrollment)
-
-    selected_choices = []
-
-    # get all questions of the course
-    questions = Question.objects.filter(lesson__course=course)
-
-    for question in questions:
-        choice_id = request.POST.get(str(question.id))
-        if choice_id:
-            choice = Choice.objects.get(id=int(choice_id))
-            selected_choices.append(choice)
-
-    submission.choices.set(selected_choices)
-    submission.save()
-
-    # redirect to exam result page
-    return HttpResponseRedirect(
-        reverse('show_exam_result', args=(course.id, submission.id))
-    )
-
-
-# Function to display exam results
 def show_exam_result(request, course_id, submission_id):
 
+    # Get the course and submission
     course = get_object_or_404(Course, pk=course_id)
     submission = get_object_or_404(Submission, pk=submission_id)
 
+    # Get all selected choices by the student
     selected_choices = submission.choices.all()
+
+    # Get all questions in the course
     questions = Question.objects.filter(lesson__course=course)
 
     total_grade = 0
     score = 0
 
+    # Calculate score
     for question in questions:
         total_grade += question.grade
 
@@ -57,7 +30,7 @@ def show_exam_result(request, course_id, submission_id):
     context = {
         'course': course,
         'score': score,
-        'total': total_grade
+        'total': total_grade,
     }
 
     return render(request, 'exam_result.html', context)
